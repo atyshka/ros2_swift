@@ -1,5 +1,0 @@
-module Crcl [system] {
-  header "/opt/ros/dashing/include/rcl/rcl.h"
-  link "rcl"
-  export *
-}

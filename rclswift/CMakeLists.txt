@@ -19,22 +19,24 @@ if(NOT WIN32)
 endif()
 
 set(SWIFT_SOURCES
-  
+  "Sources/Context.swift"
+  "Sources/Utils/ErrorHandling.swift"
+  "Sources/Utils/Capsule.swift"
 )
 
 include_directories(
   ${rcl_INCLUDE_DIRS}
 )
 
-add_library(CCore 
+add_library(RclSwift 
   SHARED
-  "Sources/Node/Node.swift"
+  ${SWIFT_SOURCES}
 )
 
-target_include_directories(CCore PUBLIC
+target_include_directories(RclSwift PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(CCore ${rcl_LIBRARIES})
+target_link_libraries(RclSwift ${rcl_LIBRARIES})
 
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(builtin_interfaces)

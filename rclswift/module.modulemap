@@ -1,5 +1,5 @@
-module CRcl [system] {
-  header "/opt/ros/foxy/include/rcl/rcl.h"
+module RclC [system] {
+  header "C/rcl.h"
   link "rcl"
   export *
 }

@@ -15,15 +15,15 @@
 
 import Foundation
 
-protocol MessageStruct { }
-protocol Message {
-  static func _CREATE_NATIVE_MESSAGE () -> UnsafeMutableRawPointer
+public protocol MessageStruct { }
+public protocol Message {
+  func _CREATE_NATIVE_MESSAGE () -> UnsafeMutableRawPointer
   func _READ_HANDLE (messageHandle: UnsafeMutableRawPointer)
   func _DESTROY_NATIVE_MESSAGE (messageHandle: UnsafeMutableRawPointer)
   func _WRITE_HANDLE (messageHandle: UnsafeMutableRawPointer)
 }
 
-protocol Disposable {
+public protocol Disposable {
   var Handle: UnsafeMutableRawPointer { get }
 }
 

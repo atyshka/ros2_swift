@@ -21,28 +21,28 @@ header_guard = "{0}_H".format(msg_prefix)
     //  Microsoft
     #define @(msg_prefix)_EXPORT __declspec(dllexport)
     #define @(msg_prefix)_IMPORT __declspec(dllimport)
-    #define @(msg_prefix)_CDECL __cdecl
 #elif defined(__GNUC__)
     //  GCC
     #define @(msg_prefix)_EXPORT __attribute__((visibility("default")))
     #define @(msg_prefix)_IMPORT
-    #define @(msg_prefix)_CDECL __attribute__((__cdecl__))
 #else
     //  do nothing and hope for the best?
     #define @(msg_prefix)_EXPORT
     #define @(msg_prefix)_IMPORT
-    #define @(msg_prefix)_CDECL
     #pragma warning Unknown dynamic link import/export semantics.
 #endif
 
-@(msg_prefix)_EXPORT
-const void * @(msg_prefix)_CDECL @(msg_typename)__get_typesupport();
+#include "stdint.h"
+#include "stdbool.h"
 
 @(msg_prefix)_EXPORT
-void * @(msg_prefix)_CDECL @(msg_typename)__create_native_message();
+const void * @(msg_typename)__get_typesupport();
 
 @(msg_prefix)_EXPORT
-void @(msg_prefix)_CDECL @(msg_typename)__destroy_native_message(void *);
+void * @(msg_typename)__create_native_message();
+
+@(msg_prefix)_EXPORT
+void @(msg_typename)__destroy_native_message(void *);
 
 @[for member in message.structure.members]@
 @[    if isinstance(member.type, Array)]@
@@ -53,13 +53,13 @@ void @(msg_prefix)_CDECL @(msg_typename)__destroy_native_message(void *);
 // TODO: Unicode types are not supported
 @[    elif isinstance(member.type, BasicType) or isinstance(member.type, AbstractString)]@
 @(msg_prefix)_EXPORT
-@(msg_type_to_c(member.type)) @(msg_prefix)_CDECL @(msg_typename)__read_field_@(member.name)(void *);
+@(msg_type_to_c(member.type)) @(msg_typename)__read_field_@(member.name)(void *);
 
 @(msg_prefix)_EXPORT
-void @(msg_typename)__write_field_@(member.name)(void *, @(msg_type_to_c(member.type)));
+void @(msg_typename)__write_field_@(member.name)(void *, const @(msg_type_to_c(member.type)));
 @[    else]@
 @(msg_prefix)_EXPORT
-void * @(msg_prefix)_CDECL @(msg_typename)__get_field_@(member.name)_HANDLE(void *);
+void * @(msg_typename)__get_field_@(member.name)_HANDLE(void *);
 @[    end if]@
 @[end for]@
 

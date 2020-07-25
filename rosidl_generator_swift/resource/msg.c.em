@@ -23,13 +23,13 @@ header_filename = "{0}/rclswift_{1}.h".format('/'.join(message.structure.namespa
 #include <stdint.h>
 
 #include <@('/'.join(message.structure.namespaced_type.namespaces))/@(convert_camel_case_to_lower_case_underscore(type_name)).h>
-#include "rosidl_generator_c/message_type_support_struct.h"
+#include <rosidl_runtime_c/message_type_support_struct.h>
 
-#include <rosidl_generator_c/string.h>
-#include <rosidl_generator_c/string_functions.h>
+#include <rosidl_runtime_c/string.h>
+#include <rosidl_runtime_c/string_functions.h>
 
-#include <rosidl_generator_c/primitives_sequence.h>
-#include <rosidl_generator_c/primitives_sequence_functions.h>
+#include <rosidl_runtime_c/primitives_sequence.h>
+#include <rosidl_runtime_c/primitives_sequence_functions.h>
 
 
 #include "@(header_filename)"
@@ -60,10 +60,10 @@ const void * @(msg_typename)__get_typesupport() {
   return ros_message->@(member.name);
 @[        end if]@
 }
-void @(msg_typename)__write_field_@(member.name)(void * message_handle, @(msg_type_to_c(member.type)) value) {
+void @(msg_typename)__write_field_@(member.name)(void * message_handle, const @(msg_type_to_c(member.type)) value) {
   @(msg_typename) * ros_message = (@(msg_typename) *)message_handle;
 @[        if isinstance(member.type, AbstractGenericString)]@
-  rosidl_generator_c__String__assign(
+  rosidl_runtime_c__String__assign(
     &ros_message->@(member.name), value);
 @[        else]@
   ros_message->@(member.name) = value;

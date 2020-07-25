@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(ament_cmake_export_assemblies REQUIRED)
 find_package(rmw_implementation_cmake REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rosidl_generator_c REQUIRED)
@@ -20,6 +19,7 @@ find_package(rosidl_typesupport_c REQUIRED)
 find_package(rosidl_typesupport_interface REQUIRED)
 find_package(rclswift_common REQUIRED)
 
+enable_language(Swift)
 # Get a list of typesupport implementations from valid rmw implementations.
 rosidl_generator_swift_get_typesupports(_typesupport_impls)
 
@@ -47,10 +47,6 @@ foreach(_abs_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
       "${_output_path}/${_parent_folder}/${_module_name}.swift"
       )
 
-    list(APPEND _generated_modulemap_files
-      "${_output_path}/${_parent_folder}/${_module_name}.modulemap"
-      )
-
     list(APPEND _generated_h_files
       "${_output_path}/${_parent_folder}/rclswift_${_module_name}.h"
       )
@@ -64,6 +60,10 @@ foreach(_abs_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
     message(FATAL_ERROR "Interface file with unknown parent folder: ${_idl_file}")
   endif()
 endforeach()
+
+list(APPEND _generated_modulemap_files
+"${_output_path}/module.modulemap"
+)
 
 set(_dependency_files "")
 set(_dependencies "")
@@ -86,7 +86,6 @@ set(target_dependencies
   "${rosidl_generator_swift_TEMPLATE_DIR}/msg.h.em"
   "${rosidl_generator_swift_TEMPLATE_DIR}/msg.c.em"
   "${rosidl_generator_swift_TEMPLATE_DIR}/msg.swift.em"
-  "${rosidl_generator_swift_TEMPLATE_DIR}/msg.modulemap.em"
   "${rosidl_generator_swift_TEMPLATE_DIR}/srv.swift.em"
   ${rosidl_generate_interfaces_ABS_IDL_FILES}
   ${_dependency_files})
@@ -155,7 +154,6 @@ if(_generated_c_ts_files)
   add_library(${_target_name} SHARED
     "${_generated_c_ts_files}"
     "${_generated_h_files}"
-    "${_generated_modulemap_files}"
   )
   add_dependencies(
     ${_target_name}
@@ -165,7 +163,7 @@ if(_generated_c_ts_files)
 
   set(_extension_compile_flags "")
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(_extension_compile_flags -Wall -Wextra)
+    # set(_extension_compile_flags -Wall -Wextra)
   endif()
   set_properties("")
   if(WIN32)
@@ -178,21 +176,20 @@ if(_generated_c_ts_files)
   set(_extension_link_flags "")
   if(NOT WIN32)
     if(CMAKE_COMPILER_IS_GNUCXX)
-      set(_extension_link_flags "-Wl,--no-undefined")
+      # set(_extension_link_flags "-Wl,--no-undefined")
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set(_extension_link_flags "-Wl,-undefined,error")
+      # set(_extension_link_flags "-Wl,-undefined,error")
     endif()
   endif()
   target_link_libraries(
     ${_target_name}
     ${PROJECT_NAME}__rosidl_typesupport_c
-    RclSwiftCommon
     ${_extension_link_flags}
   )
   target_include_directories(${_target_name}
     PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_c
-    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_swift
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_c>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_swift>
   )
 
   rosidl_target_interfaces(${_target_name}
@@ -214,12 +211,43 @@ if(_generated_c_ts_files)
     "rosidl_generator_swift"
   )
 
+  get_target_property(OUT ${_target_name} LINK_LIBRARIES)
+  message(STATUS "Link paths:")
+  message(STATUS ${rclswift_common_LIBRARIES})
+
+  add_library(${PROJECT_NAME}_swift SHARED ${_generated_swift_files} ${_generated_modulemap_files})
+  set(EMPTY_COMPILE_FLAGS "")
+  set_target_properties(${PROJECT_NAME}_swift PROPERTIES COMPILE_OPTIONS "${EMPTY_COMPILE_FLAGS}")
+  set_target_properties(${PROJECT_NAME}_swift PROPERTIES Swift_MODULE_DIRECTORY modules)
+  set_target_properties(${PROJECT_NAME}_swift PROPERTIES Swift_MODULE_NAME ${PROJECT_NAME})
+  target_include_directories(${PROJECT_NAME}_swift PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/modules>  
+    $<INSTALL_INTERFACE:modules> 
+  )
+  target_link_libraries(${PROJECT_NAME}_swift ${_target_name})
+  ament_target_dependencies(${PROJECT_NAME}_swift rclswift_common)
+  foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
+    ament_target_dependencies(${PROJECT_NAME}_swift
+      ${_pkg_name}
+    )
+  endforeach()
+
+
   if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
-    install(TARGETS ${_target_name}
+    install(TARGETS ${PROJECT_NAME}_swift #${_target_name}
+      # EXPORT ${PROJECT_NAME}_swift
       ARCHIVE DESTINATION lib
       LIBRARY DESTINATION lib
       RUNTIME DESTINATION bin
     )
+
+    install(
+      DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/modules/
+      DESTINATION modules
+    )
+
+    # ament_export_targets(${PROJECT_NAME}_swift)
+
   endif()
 endif()
 
@@ -229,13 +257,5 @@ if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
       FILES ${_generated_h_files}
       DESTINATION "include/${PROJECT_NAME}/msg"
     )
-  endif()
-
-  set(_install_assembly_dir "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}")
-  if(NOT _generated_swift_files STREQUAL "")
-    list(GET _generated_swift_files 0 _msg_file)
-    get_filename_component(_msg_package_dir "${_msg_file}" DIRECTORY)
-    get_filename_component(_msg_package_dir "${_msg_package_dir}" DIRECTORY)
-
   endif()
 endif()

@@ -15,6 +15,7 @@
 
 import os
 import string
+import pathlib
 
 from rosidl_cmake import convert_camel_case_to_lower_case_underscore
 from rosidl_cmake import expand_template
@@ -27,6 +28,7 @@ from rosidl_parser.definition import AbstractString
 from rosidl_parser.definition import AbstractWString
 from rosidl_parser.definition import AbstractNestedType
 from rosidl_parser.definition import AbstractSequence
+from rosidl_parser.definition import Array
 from rosidl_parser.definition import BasicType
 from rosidl_parser.definition import IdlContent
 from rosidl_parser.definition import IdlLocator
@@ -40,16 +42,29 @@ class Underscorer(string.Formatter):
             spec = spec[:-(len('underscore'))] + 's'
         return super(Underscorer, self).format_field(value, spec)
 
+def post_process(output):
+    print("Post Process Output:")
+    print(output)
 
 def generate_swift(generator_arguments_file, typesupport_impls):
     mapping = {
         'idl.swift.em': '%s.swift',
         'idl.c.em': '%s.c',
         'idl.h.em': 'rclswift_%s.h',
-        'idl.modulemap.em': '%s.modulemap'
     }
-
-    generate_files(generator_arguments_file, mapping)
+    
+    generated_files = generate_files(generator_arguments_file, mapping)
+    header_files = list(filter(lambda file: os.path.splitext(file)[1] == '.h', generated_files))
+    args = read_generator_arguments(generator_arguments_file)
+    data = {
+        'package_name': args['package_name'],
+        'headers': header_files,
+    }
+    template_basepath = pathlib.Path(args['template_dir'])
+    generated_file = os.path.join(
+                    args['output_dir'], 'module.modulemap')
+    latest_target_timestamp = get_newest_modification_time(args['target_dependencies'])
+    expand_template(os.path.basename('idl.modulemap.em'), data, generated_file, minimum_timestamp=latest_target_timestamp, template_basepath=template_basepath)
     return 0
 
 
@@ -61,7 +76,6 @@ def escape_string(s):
 
 def constant_value_to_swift(type_, value):
     assert value is not None
-
     if isinstance(type_, BasicType):
         if type_.typename == 'boolean':
             return 'true' if value else 'false'
@@ -69,6 +83,7 @@ def constant_value_to_swift(type_, value):
         if type_.typename in [
                 'double',
                 'long double',
+                'float',
                 'char',
                 'wchar',
                 'octet',
@@ -86,7 +101,7 @@ def constant_value_to_swift(type_, value):
     if isinstance(type_, AbstractGenericString):
         return '"%s"' % escape_string(value)
 
-    assert False, "unknown constant type '%s'" % type_
+    assert False, "unknown constant type '%s'" % type_.typename
 
 def get_builtin_swift_type(type_):
     if type_ == 'boolean':
@@ -134,12 +149,14 @@ def get_builtin_swift_type(type_):
     assert False, "unknown type '%s'" % type_
 
 
-def get_swift_type(type_):
+def get_swift_type(type_, current_package_=None):
     if isinstance(type_, AbstractGenericString):
-        return 'UnsafeMutablePointer<Int8>'
+        return 'String'
     if isinstance(type_, NamespacedType):
-        print(type_.namespaced_name())
-        return type_.namespaced_name()[-1]
+        if current_package_ is not None:
+            if current_package_ == type_.namespaced_name()[0]:
+                return type_.namespaced_name()[-1]
+        return '.'.join((type_.namespaced_name()[0], type_.namespaced_name()[-1]))
 
     return get_builtin_swift_type(type_.typename)
 
@@ -156,7 +173,4 @@ def upperfirst(s):
 
 
 def get_field_name(type_name, field_name):
-    if upperfirst(field_name) == type_name:
-        return "{0}_".format(type_name)
-    else:
-        return upperfirst(field_name)
+    return field_name.lower()

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(rosidl_generator_swift)
+project(rosidl_generator_swift LANGUAGES C Swift)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)

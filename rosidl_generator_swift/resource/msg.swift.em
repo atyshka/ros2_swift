@@ -16,11 +16,18 @@ from rosidl_parser.definition import NamespacedType
 type_name = message.structure.namespaced_type.name
 msg_typename = '%s__%s' % ('__'.join(message.structure.namespaced_type.namespaces), type_name)
 }
+
 import RclSwiftCommon
+import @(package_name)_c
+
+@[for member in message.structure.members]@
+@[    if isinstance(member.type, NamespacedType) and member.type.namespaced_name()[0] != package_name]@
+import class @(get_swift_type(member.type))
+@[    end if]@
+@[end for]@
 
 @[for ns in message.structure.namespaced_type.namespaces]@
 @[end for]@
-
 class @(type_name) : Message {
 
     init()
@@ -33,10 +40,11 @@ class @(type_name) : Message {
 @[    elif isinstance(member.type, AbstractWString)]@
 // TODO: Unicode types are not supported
 @[    elif isinstance(member.type, BasicType)]@
+        @(get_field_name(type_name, member.name)) = 0
 @[    elif isinstance(member.type, AbstractString)]@
         @(get_field_name(type_name, member.name)) = ""
 @[    else]@
-        @(get_field_name(type_name, member.name)) = UnsafeMutablePointer<@(get_swift_type(member.type))>.allocate(capacity: 1)
+        @(get_field_name(type_name, member.name)) = @(get_swift_type(member.type, package_name))()
 @[    end if]@
 @[end for]@
     }
@@ -60,12 +68,12 @@ class @(type_name) : Message {
 @[    elif isinstance(member.type, BasicType) or isinstance(member.type, AbstractString)]@
 @[        if isinstance(member.type, AbstractString)]@
         let c_str_@(get_field_name(type_name, member.name)) = @(msg_typename)__read_field_@(member.name)(messageHandle)
-        @(get_field_name(type_name, member.name)) = String(cString: c_str_@(get_field_name(type_name, member.name)))
+        @(get_field_name(type_name, member.name)) = String(cString: c_str_@(get_field_name(type_name, member.name))!)
 @[        else]@
         @(get_field_name(type_name, member.name)) = @(msg_typename)__read_field_@(member.name)(messageHandle)
 @[        end if]@
 @[    else]@
-        @(get_field_name(type_name, member.name))._READ_HANDLE(@(msg_typename)__get_field_@(member.name)_HANDLE(messageHandle));
+        @(get_field_name(type_name, member.name))._READ_HANDLE(messageHandle: @(msg_typename)__get_field_@(member.name)_HANDLE(messageHandle));
 @[    end if]@
 @[end for]@
     }
@@ -81,7 +89,7 @@ class @(type_name) : Message {
 @[    elif isinstance(member.type, BasicType) or isinstance(member.type, AbstractString)]@
         @(msg_typename)__write_field_@(member.name)(messageHandle, @(get_field_name(type_name, member.name)));
 @[    else]@
-        @(get_field_name(type_name, member.name))._WRITE_HANDLE(@(msg_typename)__get_field_@(member.name)_HANDLE(messageHandle));
+        @(get_field_name(type_name, member.name))._WRITE_HANDLE(messageHandle: @(msg_typename)__get_field_@(member.name)_HANDLE(messageHandle));
 @[    end if]@
 @[end for]@
     }
@@ -91,8 +99,7 @@ class @(type_name) : Message {
     }
 
 @[for constant in message.constants]@
-    static let @(constant.name) : @(get_swift_type(constant.type)) =
-        @(constant_value_to_swift(constant.type, constant.value));
+    static let @(constant.name) : @(get_swift_type(constant.type)) = @(constant_value_to_swift(constant.type, constant.value))
 @[end for]@
 
 @[for member in message.structure.members]@
@@ -103,7 +110,7 @@ class @(type_name) : Message {
 @[    elif isinstance(member.type, AbstractWString)]@
 // TODO: Unicode types are not supported
 @[    else]@
-    @(get_field_name(type_name, member.name)) : @(get_swift_type(member.type))
+    var @(get_field_name(type_name, member.name)) : @(get_swift_type(member.type, package_name))
 @[    end if]@
 @[end for]@
 }

@@ -161,30 +161,9 @@ if(_generated_c_ts_files)
     ${rosidl_generate_interfaces_TARGET}__rosidl_typesupport_c
   )
 
-  set(_extension_compile_flags "")
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # set(_extension_compile_flags -Wall -Wextra)
-  endif()
-  set_properties("")
-  if(WIN32)
-    set_properties("_DEBUG")
-    set_properties("_MINSIZEREL")
-    set_properties("_RELEASE")
-    set_properties("_RELWITHDEBINFO")
-  endif()
-
-  set(_extension_link_flags "")
-  if(NOT WIN32)
-    if(CMAKE_COMPILER_IS_GNUCXX)
-      # set(_extension_link_flags "-Wl,--no-undefined")
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      # set(_extension_link_flags "-Wl,-undefined,error")
-    endif()
-  endif()
   target_link_libraries(
     ${_target_name}
     ${PROJECT_NAME}__rosidl_typesupport_c
-    ${_extension_link_flags}
   )
   target_include_directories(${_target_name}
     PUBLIC
@@ -225,8 +204,10 @@ if(_generated_c_ts_files)
     $<INSTALL_INTERFACE:modules> 
   )
   target_link_libraries(${PROJECT_NAME}_swift ${_target_name})
+
   ament_target_dependencies(${PROJECT_NAME}_swift rclswift_common)
   foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
+    message(STATUS "Adding dependency: ${_pkg_name}")
     ament_target_dependencies(${PROJECT_NAME}_swift
       ${_pkg_name}
     )
@@ -234,8 +215,8 @@ if(_generated_c_ts_files)
 
 
   if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
-    install(TARGETS ${PROJECT_NAME}_swift #${_target_name}
-      # EXPORT ${PROJECT_NAME}_swift
+    install(TARGETS ${PROJECT_NAME}_swift ${_target_name}
+      EXPORT ${PROJECT_NAME}_swift
       ARCHIVE DESTINATION lib
       LIBRARY DESTINATION lib
       RUNTIME DESTINATION bin
@@ -246,7 +227,7 @@ if(_generated_c_ts_files)
       DESTINATION modules
     )
 
-    # ament_export_targets(${PROJECT_NAME}_swift)
+    ament_export_targets(${PROJECT_NAME}_swift)
 
   endif()
 endif()

@@ -4,19 +4,20 @@ project(rclswift_common Swift)
 
 find_package(ament_cmake REQUIRED)
 
-add_library(RclSwiftCommon
+add_library(${PROJECT_NAME}
   "swift/Interfaces.swift"
 )
 
-set_target_properties(RclSwiftCommon PROPERTIES Swift_MODULE_DIRECTORY modules)
+set_target_properties(${PROJECT_NAME} PROPERTIES Swift_MODULE_DIRECTORY modules)
+set_target_properties(${PROJECT_NAME} PROPERTIES Swift_MODULE_NAME RclSwiftCommon)
 
-target_include_directories(RclSwiftCommon PUBLIC  
+target_include_directories(${PROJECT_NAME} PUBLIC  
 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/modules>  
 $<INSTALL_INTERFACE:modules> )
 
 install(
-  TARGETS RclSwiftCommon
-  EXPORT RclSwiftCommon
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -27,6 +28,6 @@ install(
   DESTINATION modules
 )
 
-ament_export_targets(RclSwiftCommon HAS_LIBRARY_TARGET)
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 ament_package()

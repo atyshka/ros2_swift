@@ -2,9 +2,33 @@
 
 Download a swift toolchain from swift.org, installing to /opt/swift and add to $PATH
 
-Install Ninja via Apt
+## Install Ninja via apt or homebrew
 
-Clone common_interfaces, rcl_interfaces, rosidl, rosidl_defaults, test_interface_files, and unique_indentifier_msgs into workspace along with this repo
+For Ubuntu:
 
-Build with:
-colcon build --cmake-args " -GNinja" --event-handlers console_direct+
+```bash
+~$ sudo apt install ninja
+```
+
+For macOS:
+
+```bash
+~$ brew install ninja
+```
+
+## Additional Dependencies
+
+Clone the following into your workspace along with this repo:
+
+- `common_interfaces`
+- `rcl_interfaces`
+- `rosidl`
+- `rosidl_default`s
+- `test_interface_files`
+- `unique_indentifier_msgs`
+
+## Build
+
+```bash
+~$ colcon build --cmake-args " -GNinja" --event-handlers console_direct+
+```

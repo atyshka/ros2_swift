@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>rclswift_common</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>Assorted utilities for the Swift client.</description>
-  <maintainer email="esteve@apache.org">Esteve Fernandez</maintainer>
+  <maintainer email="atyshka12@gmail.com">Alex Tyshka</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -1,4 +1,7 @@
+# Based off of ros2_dotnet, copyrights:
 # Copyright 2016-2018 Esteve Fernandez <esteve@apache.org>
+# Swift modifications:
+# Copyright 2020 Alex Tyshka <atyshka15@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

@@ -105,53 +105,97 @@ def constant_value_to_swift(type_, value):
 
 def get_builtin_swift_type(type_):
     if type_ == 'boolean':
-        return 'Bool'
+        return 'Swift.Bool'
 
     if type_ == 'byte':
-        return 'UInt8'
+        return 'Swift.UInt8'
 
     if type_ == 'char':
-        return 'UInt8'
+        return 'Swift.UInt8'
 
     if type_ == 'octet':
-        return 'UInt8'
+        return 'Swift.UInt8'
 
     if type_ == 'float':
-        return 'Float'
+        return 'Swift.Float'
 
     if type_ == 'double':
-        return 'Double'
+        return 'Swift.Double'
 
     if type_ == 'int8':
-        return 'Int8'
+        return 'Swift.Int8'
 
     if type_ == 'uint8':
-        return 'UInt8'
+        return 'Swift.UInt8'
 
     if type_ == 'int16':
-        return 'Int16'
+        return 'Swift.Int16'
 
     if type_ == 'uint16':
-        return 'UInt16'
+        return 'Swift.UInt16'
 
     if type_ == 'int32':
-        return 'Int32'
+        return 'Swift.Int32'
 
     if type_ == 'uint32':
-        return 'UInt32'
+        return 'Swift.UInt32'
 
     if type_ == 'int64':
-        return 'Int64'
+        return 'Swift.Int64'
 
     if type_ == 'uint64':
-        return 'UInt64'
+        return 'Swift.UInt64'
 
     assert False, "unknown type '%s'" % type_
 
+def get_default_for_type(type_):
+    if type_ == 'boolean':
+        return 'false'
+
+    if type_ == 'byte':
+        return '0'
+
+    if type_ == 'char':
+        return '0'
+
+    if type_ == 'octet':
+        return '0'
+
+    if type_ == 'float':
+        return '0'
+
+    if type_ == 'double':
+        return '0'
+
+    if type_ == 'int8':
+        return '0'
+
+    if type_ == 'uint8':
+        return '0'
+
+    if type_ == 'int16':
+        return '0'
+
+    if type_ == 'uint16':
+        return '0'
+
+    if type_ == 'int32':
+        return '0'
+
+    if type_ == 'uint32':
+        return '0'
+
+    if type_ == 'int64':
+        return '0'
+
+    if type_ == 'uint64':
+        return '0'
+
+    assert False, "unknown type '%s'" % type_
 
 def get_swift_type(type_, current_package_=None):
     if isinstance(type_, AbstractGenericString):
-        return 'String'
+        return 'Swift.String'
     if isinstance(type_, NamespacedType):
         if current_package_ is not None:
             if current_package_ == type_.namespaced_name()[0]:

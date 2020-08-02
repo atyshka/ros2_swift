@@ -24,10 +24,6 @@ set(SWIFT_SOURCES
   "Sources/Utils/Capsule.swift"
 )
 
-include_directories(
-  ${rcl_INCLUDE_DIRS}
-)
-
 add_library(RclSwift 
   SHARED
   ${SWIFT_SOURCES}
@@ -36,7 +32,7 @@ add_library(RclSwift
 target_include_directories(RclSwift PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(RclSwift ${rcl_LIBRARIES})
+ament_target_dependencies(RclSwift rcl)
 
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(builtin_interfaces)

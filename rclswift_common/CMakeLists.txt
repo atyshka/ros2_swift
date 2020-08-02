@@ -4,7 +4,7 @@ project(rclswift_common Swift)
 
 find_package(ament_cmake REQUIRED)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   "swift/Interfaces.swift"
 )
 

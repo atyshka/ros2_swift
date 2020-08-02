@@ -34,4 +34,5 @@ ament_package(
   CONFIG_EXTRAS "cmake/rosidl_generator_swift_get_typesupports.cmake"
     "cmake/register_swift.cmake"
     "rosidl_generator_swift-extras.cmake.in"
+    "cmake/patch_swift_preference.cmake"
 )

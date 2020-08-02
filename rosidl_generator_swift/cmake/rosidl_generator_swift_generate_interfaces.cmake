@@ -20,6 +20,7 @@ find_package(rosidl_typesupport_interface REQUIRED)
 find_package(rclswift_common REQUIRED)
 
 enable_language(Swift)
+set(CMAKE_Swift_LINKER_PREFERENCE 0)
 # Get a list of typesupport implementations from valid rmw implementations.
 rosidl_generator_swift_get_typesupports(_typesupport_impls)
 
@@ -160,6 +161,8 @@ if(_generated_c_ts_files)
     ${rosidl_generate_interfaces_TARGET}${_target_suffix}
     ${rosidl_generate_interfaces_TARGET}__rosidl_typesupport_c
   )
+  
+  set_target_properties(${_target_name} PROPERTIES LINKER_LANGUAGE C)
 
   target_link_libraries(
     ${_target_name}

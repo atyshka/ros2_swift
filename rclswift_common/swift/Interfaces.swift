@@ -17,6 +17,7 @@ import Foundation
 
 public protocol MessageStruct { }
 public protocol Message {
+  static func _GET_TYPE_SUPPORT() -> UnsafeRawPointer
   func _CREATE_NATIVE_MESSAGE () -> UnsafeMutableRawPointer
   func _READ_HANDLE (messageHandle: UnsafeMutableRawPointer)
   func _DESTROY_NATIVE_MESSAGE (messageHandle: UnsafeMutableRawPointer)

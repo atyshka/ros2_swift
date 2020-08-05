@@ -1,13 +1,13 @@
 import RclC
 
-enum RclSwiftError: Error {
+public enum RclSwiftError: Error {
     case optionsAlreadyInitialized
     case invalidArgument
     case badAllocation
     case internalError
     case unknownRclError
 
-    init(errorCode: rcl_ret_t) {
+    internal init(errorCode: rcl_ret_t) {
         switch errorCode {
         case RCL_RET_ALREADY_INIT:
             self = .optionsAlreadyInitialized

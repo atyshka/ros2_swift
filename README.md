@@ -18,14 +18,14 @@ For macOS:
 
 ## Additional Dependencies
 
-Clone the following into your workspace along with this repo:
+This repo currently requires a few packages to be built from source in order to build the swift versions. Also using forked versions of sensor_msgs and test_msgs since currently linker language is problematic when using tests.
 
-- `common_interfaces`
-- `rcl_interfaces`
-- `rosidl`
-- `rosidl_default`s
-- `test_interface_files`
-- `unique_indentifier_msgs`
+Dependencies are in the repos file and easily installable with vcs:
+```
+curl -sk https://raw.githubusercontent.com/atyshka/ros2_swift/master/ros2_swift.repos -o ros2_swift.repos
+vcs import ~/ros2/src/ < rclswift.repos
+```
+Choose the source directory of your colcon workspace, in my case ros2/src
 
 ## Build
 
